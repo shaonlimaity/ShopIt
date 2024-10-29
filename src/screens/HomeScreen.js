@@ -1,30 +1,31 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, ScrollView, FlatList} from 'react-native';
+import React, {useEffect, useContext} from 'react';
+import {View, StyleSheet, FlatList} from 'react-native';
 import ItemCards from '../components/ItemCards';
-// import { ScrollView } from 'react-native-gesture-handler';
+import { DataContext } from '../global/DataContext';
 
 const HomeScreen = () => {
-  const [data, setData] = useState(null);
+  const {data, setData, added} = useContext(DataContext);
 
   useEffect(() => {
-    getData();
-  }, []);
-
-  const getData = async () => {
-    const response = await fetch(
+    fetch(
       'https://dummyjson.com/products/category/groceries',
-    );
-    const datas = await response.json();
-    // console.log('Data', datas);
-    setData(datas.products);
-  };
+    )
+      .then(res => res.json())
+      .then(response => setData(response?.products));
+  }, [added, data, setData]);
 
   const renderItem = ({item}) => {
     return <ItemCards product={item} />;
   };
   return (
-    <View style={{flex: 1, backgroundColor: '#eeeeff'}}>
-      <FlatList contentContainerStyle={{flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'center', marginTop: 20}} data={data} renderItem={renderItem} />
+    <View style={styles.container}>
+      <View>
+        <FlatList
+          contentContainerStyle={styles.listContainer}
+          data={data}
+          renderItem={renderItem}
+        />
+      </View>
     </View>
   );
 };
@@ -32,10 +33,12 @@ const HomeScreen = () => {
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
+  container: {flex: 1, backgroundColor: '#eeeeff'},
+  listContainer: {
     flexWrap: 'wrap',
-    paddingHorizontal: 10,
-    backgroundColor: 'yellow',
+    flexDirection: 'row',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
   },
 });
