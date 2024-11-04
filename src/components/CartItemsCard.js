@@ -3,7 +3,7 @@ import React, {useContext, useEffect} from 'react';
 import {DataContext} from '../global/DataContext';
 import {View, Text, StyleSheet, Image} from 'react-native';
 
-const CartItemCards = ({product}) => {
+const CartItemCards = () => {
   const {data, setData, added, setAdded} = useContext(DataContext);
 
   useEffect(() => {
@@ -52,8 +52,8 @@ const CartItemCards = ({product}) => {
             <View
                 style={styles.button2}>
                 <Text style={styles.buttonText} onPress={() => {
-                    if (checkCount(item?.id) === 1) {
-                    removeElement(item?.id);
+                    if (checkCount(item?.id) >= 1) {
+                      removeElement(item?.id);
                     }
                 }}>-</Text>
                 <Text style={[styles.buttonText, {marginHorizontal: 7}]}>{checkCount(item?.id)}</Text>

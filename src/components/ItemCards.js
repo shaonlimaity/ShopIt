@@ -4,7 +4,7 @@ import React, {useContext} from 'react';
 import {DataContext} from '../global/DataContext';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
-const ItemCards = ({product}) => {
+const ItemCards = ({product, navigation}) => {
   const {added, setAdded} = useContext(DataContext);
 
   const checkCount = i => {
@@ -21,7 +21,7 @@ const ItemCards = ({product}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('ProductDetails', product)}>
       <View style={styles.imageContainer}>
         <Image
           source={{uri: product?.thumbnail}}
@@ -47,7 +47,7 @@ const ItemCards = ({product}) => {
           <View
             style={styles.button2}>
             <Text style={styles.buttonText} onPress={() => {
-                if (checkCount(product?.id) === 1) {
+                if (checkCount(product?.id) >= 1) {
                   removeElement(product?.id);
                 }
               }}>-</Text>
@@ -56,7 +56,7 @@ const ItemCards = ({product}) => {
           </View>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

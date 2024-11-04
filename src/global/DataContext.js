@@ -11,10 +11,6 @@ const DataProvider = ({children}) => {
   const [email, setEmail] = React.useState('');
   const [phone, setPhone] = React.useState('');
 
-  console.log('data', data);
-  console.log('added', added);
-  console.log('name', name);
-
   return (
     <DataContext.Provider
       value={{

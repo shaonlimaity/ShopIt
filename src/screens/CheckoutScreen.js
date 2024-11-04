@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
-import CartItemCards from '../components/CartItemsCard';
 import { DataContext } from '../global/DataContext';
+import CheckoutItemCards from '../components/CheckoutItemCard';
 
-const CartScreen = ({navigation}) =>{
+const CheckoutScreen = ({navigation}) =>{
     const {added} = useContext(DataContext);
     return (
         <>
@@ -14,19 +14,21 @@ const CartScreen = ({navigation}) =>{
           ) : (
             <>
               <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.checkout}>Cart Summary</Text>
-                <CartItemCards />
+                <Text style={styles.checkout}>Order Summary</Text>
+                <CheckoutItemCards />
               </ScrollView>
-              <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Checkout')}>
-                <Text style={styles.buttonText}>{'Proceed To Checkout >'}</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Payment')}>
+                  <Text style={styles.buttonText}>{'Proceed To Payment'}</Text>
+                </TouchableOpacity>
+              </View>
             </>
           )}
         </>
     );
 };
 
-export default CartScreen;
+export default CheckoutScreen;
 
 const styles = StyleSheet.create({
     noDataContainer: {
@@ -47,13 +49,21 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#dd8299',
     },
-    button: {
+    buttonContainer: {
         width: '100%',
+        height: 100,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 5,
+    },
+    button: {
+        width: '90%',
         height: 50,
         backgroundColor: '#5c3d73',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 5,
+        borderRadius: 30,
     },
     buttonText: {
         color: 'white',
