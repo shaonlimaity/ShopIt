@@ -33,7 +33,7 @@ const CartItemCards = () => {
     <>
     {data?.filter(i => added.includes(i.id))
         ?.map(item => (
-            <View style={styles.container}>
+          <View style={styles.container}>
       <View style={styles.infoContainer}>
         <Text style={{fontSize: 20}} numberOfLines={1}>{item?.title}</Text>
         <Text style={{fontSize: 12}} numberOfLines={2}>{item?.description}</Text>

@@ -20,7 +20,6 @@ const ProductDetailsScreen = ({route}) =>{
   };
 
     const {params} = route;
-    console.log(params?.dimensions);
     return (
         <View style={styles.container}>
             <View style={styles.image}>

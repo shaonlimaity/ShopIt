@@ -4,10 +4,8 @@ import {StyleSheet, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeScreen from '../screens/HomeScreen';
 import OrdersScreen from '../screens/OrdersScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import CartScreen from '../screens/CartScreen';
 import { DataContext } from '../global/DataContext';
-import Header from '../components/Header';
 
 const Tab = createBottomTabNavigator();
 
@@ -61,7 +59,6 @@ function TabNavigator({}) {
           }}
         />
         <Tab.Screen name="Orders" component={OrdersScreen} />
-        {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
         <Tab.Screen name="Cart" component={CartScreen} />
       </Tab.Navigator>
   );

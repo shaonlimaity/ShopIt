@@ -64,7 +64,7 @@ const CheckoutItemCards = () => {
                   <Text style={[styles.buttonText, {marginHorizontal: 7}]}>{checkCount(item?.id)}</Text>
                   <Text style={[styles.buttonText, {bottom: 1}]} onPress={() => setAdded(current => [...current, item?.id])}>+</Text>
                 </View>
-                <Text style={{fontSize: 15, marginTop: 10}}>{`$ ${item?.price * checkCount(item?.id)}`}</Text>
+                <Text style={{fontSize: 15, marginTop: 10}}>{`$ ${Math.round((item?.price * checkCount(item?.id)) * 100) / 100}`}</Text>
               </View>
             </View>
           </View>
@@ -88,7 +88,7 @@ const CheckoutItemCards = () => {
         </View>
         <View style={styles.summaryContainer}>
             <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold'}]}>Grand Total</Text>
-            <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold'}]}>
+            <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold', color: 'green'}]}>
                 ${grandTotal()}
             </Text>
         </View>

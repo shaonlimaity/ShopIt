@@ -1,84 +1,67 @@
-import {PlatformPay, PlatformPayButton, StripeProvider, usePlatformPay} from '@stripe/stripe-react-native';
 import React from 'react';
-import { Alert, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const API_URL = 'http://10.0.2.2:3000';
-const PaymentScreen = () => {
-  const {
-    isPlatformPaySupported,
-    confirmPlatformPayPayment,
-  } = usePlatformPay();
-
-  React.useEffect(() => {
-    (async function () {
-      if (!(await isPlatformPaySupported({ googlePay: {testEnv: true} }))) {
-        // Alert.alert('Google Pay is not supported.');
-        return;
-      }
-    })();
-  }, [isPlatformPaySupported]);
-
-  const fetchPaymentIntentClientSecret = async () => {
-    // Fetch payment intent created on the server, see above
-    const response = await fetch(`${API_URL}/create-payment-intent`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        currency: 'usd',
-      }),
-    });
-    const { client_secret } = await response.json();
-
-    return client_secret;
-  };
-
-  const pay = async () => {
-    const clientSecret = await fetchPaymentIntentClientSecret();
-
-    const { error } = await confirmPlatformPayPayment(
-      clientSecret,
-      {
-        googlePay: {
-          testEnv: true,
-          merchantName: 'My merchant name',
-          merchantCountryCode: 'US',
-          currencyCode: 'USD',
-          billingAddressConfig: {
-            format: PlatformPay.BillingAddressFormat.Full,
-            isPhoneNumberRequired: true,
-            isRequired: true,
-          },
-        },
-      }
-    );
-
-    if (error) {
-      Alert.alert(error.code, error.message);
-      console.log(error.code, error.message);
-      // Update UI to prompt user to retry payment (and possibly another payment method)
-      return;
-    }
-    Alert.alert('Success', 'The payment was confirmed successfully.');
-  };
-
+// const API_URL = Platform.OS === 'ios' ? 'http://localhost:4242' : 'http://10.0.2.2:4567';
+const PaymentScreen = ({navigation}) => {
   return (
-    <StripeProvider
-        publishableKey="pk_test_51QGbyZGTpt0YW21e5PhPR7TOYdIs10YBtf7YQUyN8H5lkx9MZ1tkXSZ48cdcnf1qvFf8Ct2X5TzbOq0w001kAa4Z00xaTRceO6"
-    >
-      <View style={{flex:1, justifyContent: 'center', paddingHorizontal: 20}}>
-        <PlatformPayButton
-          type={PlatformPay.ButtonType.AddMoney}
-          onPress={pay}
-          style={{
-            width: '100%',
-            height: 50,
-          }}
-        />
-      </View>
-    </StripeProvider>
+    <View style={styles.container}>
+      <Text style={styles.header}>Select Payment Method</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('CardPay')} style={styles.button}>
+        <Text style={styles.text}>
+          Card Payment
+        </Text>
+        <Ionicons style={styles.icon} name={'chevron-forward'} size={25} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('PlatformPay')} style={styles.button}>
+        {Platform.OS === 'ios' ? (
+          <Text
+            style={styles.text}>
+            Apple Pay
+          </Text>
+        ) : (
+          <Text
+            style={styles.text}>
+            Gpay Pay
+          </Text>
+        )}
+        <Ionicons style={styles.icon} name={'chevron-forward'} size={25} />
+      </TouchableOpacity>
+    </View>
   );
 };
 
 export default PaymentScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  button: {
+    width: '100%',
+    height: 70,
+    marginTop: 20,
+    borderBottomWidth: 0.3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 15,
+  },
+  header: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginVertical: 20,
+    color: '#dc4d01',
+  },
+  icon: {marginTop: 14},
+});

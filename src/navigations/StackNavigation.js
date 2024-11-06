@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import {NavigationContainer} from '@react-navigation/native';
-import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import ProductDetailsScreen from '../screens/ProductDetailsScreen';
 import TabNavigator from './TabNavigation';
 import CheckoutScreen from '../screens/CheckoutScreen';
@@ -10,6 +10,11 @@ import PaymentScreen from '../screens/PaymentScreen';
 import AccountScreen from '../screens/AccountScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import OrdersScreen from '../screens/OrdersScreen';
+import AboutUsScreen from '../screens/AboutUsScreen';
+import FAQsScreen from '../screens/FAQsScreen';
+import OrdersSummary from '../screens/OrdersSummary';
+import CardPayScreen from '../screens/CardPayment';
+import PlatformPayScreen from '../screens/PlatformPay';
 
 const Stack = createStackNavigator();
 
@@ -34,7 +39,6 @@ function StackNavigator({}) {
           component={ProductDetailsScreen}
           options={{
             title: 'Product Details',
-            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
           }}
         />
         <Stack.Screen
@@ -44,6 +48,27 @@ function StackNavigator({}) {
         <Stack.Screen
           name="Payment"
           component={PaymentScreen}
+        />
+        <Stack.Screen
+          name="PlatformPay"
+          component={PlatformPayScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="CardPay"
+          component={CardPayScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="OrdersSummary"
+          component={OrdersSummary}
+          options={{
+            title: 'Orders Summary',
+          }}
         />
          <Stack.Screen
           name="Account"
@@ -56,6 +81,14 @@ function StackNavigator({}) {
         <Stack.Screen
           name="Order"
           component={OrdersScreen}
+        />
+        <Stack.Screen
+          name="AboutUs"
+          component={AboutUsScreen}
+        />
+        <Stack.Screen
+          name="FAQs"
+          component={FAQsScreen}
         />
         <Stack.Screen
           name="Tabs"

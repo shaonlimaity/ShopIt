@@ -3,9 +3,10 @@ import React from 'react';
 const DataContext = React.createContext({});
 
 const DataProvider = ({children}) => {
-    const [data, setData] = React.useState([]);
+  const [data, setData] = React.useState([]);
   const [cartData, setCartData] = React.useState([]);
   const [added, setAdded] = React.useState([]);
+  const [ordered, setOrdered] = React.useState([]);
   const [count, setCount] = React.useState(0);
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -14,7 +15,8 @@ const DataProvider = ({children}) => {
   return (
     <DataContext.Provider
       value={{
-        data, setData,
+        data,
+        setData,
         cartData,
         setCartData,
         added,
@@ -27,6 +29,8 @@ const DataProvider = ({children}) => {
         setEmail,
         phone,
         setPhone,
+        ordered,
+        setOrdered,
       }}>
       {children}
     </DataContext.Provider>
