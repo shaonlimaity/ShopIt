@@ -2,20 +2,28 @@
 import React, {useContext, useEffect} from 'react';
 import {DataContext} from '../global/DataContext';
 import {View, Text, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CheckoutItemCards = () => {
-  const {data, setData, added, setAdded} = useContext(DataContext);
+const CheckoutItemCards = ({added, setAdded}) => {
+  const {data, setData} = useContext(DataContext);
   var total;
 
   useEffect(() => {
-    fetch(
-      'https://dummyjson.com/products/category/groceries',
-    )
-      .then(res => res.json())
-      .then(response => {
-        setData(response?.items);
-      });
+    (async () => {
+      const data1 = (await AsyncStorage.getItem('data')) || '';
+      setData(JSON.parse(data1));
+    })();
   }, [setData]);
+
+  // useEffect(() => {
+  //   fetch(
+  //     'https://dummyjson.com/products/category/groceries',
+  //   )
+  //     .then(res => res.json())
+  //     .then(response => {
+  //       setData(response?.items);
+  //     });
+  // }, [setData]);
 
   const checkCount = i => {
     let count = 0;
@@ -28,6 +36,12 @@ const CheckoutItemCards = () => {
     setAdded(
       added?.slice(0, index).concat(added?.slice(index + 1, added?.length)),
     );
+    AsyncStorage.setItem(
+      'added',
+      JSON.stringify(
+        added.slice(0, index).concat(added.slice(index + 1, added.length)),
+      ),
+    );
   };
 
   const totalPrice = arr => {
@@ -37,60 +51,87 @@ const CheckoutItemCards = () => {
   };
 
   const grandTotal = () => {
-    let grand = (totalPrice(data?.filter(i => added?.includes(i.id))) *
-    5) /
-    100 +
-    totalPrice(data?.filter(i => added?.includes(i.id))) + 5;
+    let grand =
+      (totalPrice(data?.filter(i => added?.includes(i.id))) * 5) / 100 +
+      totalPrice(data?.filter(i => added?.includes(i.id))) +
+      5;
     return Math.round(grand * 100) / 100;
   };
 
   return (
     <>
-      {data?.filter(i => added?.includes(i.id))
+      {data
+        ?.filter(i => added?.includes(i.id))
         ?.map(item => (
           <View style={styles.container}>
             <View style={styles.infoContainer}>
-              <Text style={{fontSize: 20}} numberOfLines={1}>{item?.title}</Text>
-              <Text style={{fontSize: 15, marginTop: 10}}>{`$ ${item?.price}`}</Text>
+              <Text style={{fontSize: 20}} numberOfLines={1}>
+                {item?.title}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 15,
+                  marginTop: 10,
+                }}>{`$ ${item?.price}`}</Text>
             </View>
-            <View >
+            <View>
               <View style={styles.content}>
                 <View style={styles.button}>
-                  <Text style={styles.buttonText} onPress={() => {
-                    if (checkCount(item?.id) >= 1) {
+                  <Text
+                    style={styles.buttonText}
+                    onPress={() => {
+                      if (checkCount(item?.id) >= 1) {
                         removeElement(item?.id);
-                    }
-                  }}>-</Text>
-                  <Text style={[styles.buttonText, {marginHorizontal: 7}]}>{checkCount(item?.id)}</Text>
-                  <Text style={[styles.buttonText, {bottom: 1}]} onPress={() => setAdded(current => [...current, item?.id])}>+</Text>
+                      }
+                    }}>
+                    -
+                  </Text>
+                  <Text style={[styles.buttonText, {marginHorizontal: 7}]}>
+                    {checkCount(item?.id)}
+                  </Text>
+                  <Text
+                    style={[styles.buttonText, {bottom: 1}]}
+                    onPress={() => {
+                      setAdded(current => [...current, item?.id]);
+                      AsyncStorage.setItem('added', JSON.stringify([...added, item?.id]));
+                    }}>
+                    +
+                  </Text>
                 </View>
-                <Text style={{fontSize: 15, marginTop: 10}}>{`$ ${Math.round((item?.price * checkCount(item?.id)) * 100) / 100}`}</Text>
+                <Text style={{fontSize: 15, marginTop: 10}}>{`$ ${
+                  Math.round(item?.price * checkCount(item?.id) * 100) / 100
+                }`}</Text>
               </View>
             </View>
           </View>
-        )
-      )}
+        ))}
       <View style={styles.orderContainer}>
         <Text style={styles.order}>Bill Details</Text>
         <View style={styles.summaryContainer}>
-            <Text style={styles.summary}>Item total</Text>
-            <Text style={styles.summary}>
-                {`$ ${totalPrice(data?.filter(i => added?.includes(i.id)))}`}
-            </Text>
+          <Text style={styles.summary}>Item total</Text>
+          <Text style={styles.summary}>
+            {`$ ${totalPrice(data?.filter(i => added?.includes(i.id)))}`}
+          </Text>
         </View>
         <View style={styles.summaryContainer}>
-            <Text style={styles.summary}>Tax & Charges</Text>
-            <Text style={styles.summary}>5%</Text>
+          <Text style={styles.summary}>Tax & Charges</Text>
+          <Text style={styles.summary}>5%</Text>
         </View>
         <View style={styles.summaryContainer}>
-            <Text style={styles.summary}>Handling Charges</Text>
-            <Text style={styles.summary}>$ 5</Text>
+          <Text style={styles.summary}>Handling Charges</Text>
+          <Text style={styles.summary}>$ 5</Text>
         </View>
         <View style={styles.summaryContainer}>
-            <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold'}]}>Grand Total</Text>
-            <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold', color: 'green'}]}>
-                ${grandTotal()}
-            </Text>
+          <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold'}]}>
+            Grand Total
+          </Text>
+          <Text
+            style={[
+              styles.summary,
+              {fontSize: 16, fontWeight: 'bold', color: 'green'},
+            ]}>
+            ${grandTotal()}
+          </Text>
         </View>
       </View>
     </>
@@ -110,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fffdee',
   },
   infoContainer: {
-    flex:1,
+    flex: 1,
     width: '70%',
     paddingHorizontal: 10,
     justifyContent: 'flex-start',
@@ -118,7 +159,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   content: {
-    flex:1,
+    flex: 1,
     alignItems: 'center',
     width: 100,
     paddingTop: 12,
@@ -133,7 +174,12 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
   buttonText: {color: 'white', fontWeight: 'bold'},
-  imageContainer: {borderWidth: 0.2, borderRadius: 15, alignSelf: 'flex-end', top: 5},
+  imageContainer: {
+    borderWidth: 0.2,
+    borderRadius: 15,
+    alignSelf: 'flex-end',
+    top: 5,
+  },
   image: {width: 90, height: 80, borderRadius: 15},
   orderContainer: {
     width: '90%',

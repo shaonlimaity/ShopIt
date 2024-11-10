@@ -1,29 +1,38 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import CartItemCards from '../components/CartItemsCard';
 import { DataContext } from '../global/DataContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CartScreen = ({navigation}) =>{
-    const {added} = useContext(DataContext);
-    return (
-        <>
-          {added?.length === 0 ? (
-            <View style={styles.noDataContainer}>
-              <Text>Add items from list of products</Text>
-            </View>
-          ) : (
-            <>
-              <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.checkout}>Cart Summary</Text>
-                <CartItemCards />
-              </ScrollView>
-              <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Checkout')}>
-                <Text style={styles.buttonText}>{'Proceed To Checkout >'}</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </>
-    );
+  const {added, setAdded} = useContext(DataContext);
+
+  useEffect(() => {
+    (async () => {
+      const added1 = (await AsyncStorage.getItem('added')) || '';
+      setAdded(JSON.parse(added1));
+    })();
+  }, [setAdded]);
+
+  return (
+      <>
+        {added?.length === 0 ? (
+          <View style={styles.noDataContainer}>
+            <Text>Add items from list of products</Text>
+          </View>
+        ) : (
+          <>
+            <ScrollView contentContainerStyle={styles.container}>
+              <Text style={styles.checkout}>Cart Summary</Text>
+              <CartItemCards added={added} setAdded={setAdded} />
+            </ScrollView>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Checkout')}>
+              <Text style={styles.buttonText}>{'Proceed To Checkout >'}</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </>
+  );
 };
 
 export default CartScreen;

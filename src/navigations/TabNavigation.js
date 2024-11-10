@@ -1,6 +1,6 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import React, { useContext } from 'react';
-import {StyleSheet, Text} from 'react-native';
+import {Platform, StyleSheet, Text} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import HomeScreen from '../screens/HomeScreen';
 import OrdersScreen from '../screens/OrdersScreen';
@@ -40,6 +40,7 @@ function TabNavigator({}) {
           tabBarInactiveTintColor: '#FFFFFF',
           headerStyle: {
             backgroundColor: 'orange',
+            height: Platform.OS !== 'ios' ? 70 : 110,
           },
           headerTitleStyle: {
             fontSize: 20,
@@ -50,6 +51,7 @@ function TabNavigator({}) {
             fontSize: 12,
             fontWeight: '500',
           },
+          headerTitleAlign: 'center',
         })}>
         <Tab.Screen
           name="Home"

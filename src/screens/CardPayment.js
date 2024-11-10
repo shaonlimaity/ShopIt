@@ -1,11 +1,24 @@
-import React, {useContext, useState} from 'react';
+/* eslint-disable no-unused-vars */
+import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, Button, Platform, StyleSheet, Alert} from 'react-native';
 import {CardField, useConfirmPayment} from '@stripe/stripe-react-native';
 import {DataContext} from '../global/DataContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function CardPayScreen({navigation}) {
-  const {data, added, setData, setAdded, setOrdered} = useContext(DataContext);
+  const {data, added, setData, setAdded, ordered, setOrdered, email, setEmail} = useContext(DataContext);
   const [complete, setComplete] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const data1 = (await AsyncStorage.getItem('data')) || '';
+      setData(JSON.parse(data1));
+      const added1 = (await AsyncStorage.getItem('added')) || '';
+      setAdded(JSON.parse(added1));
+      const emails = (await AsyncStorage.getItem('email')) || '';
+      setEmail(JSON.parse(emails));
+    })();
+  }, [setData, setAdded, setEmail]);
 
   const fetchPaymentIntentClientSecret = async () => {
     const apiEndpoint =
@@ -26,7 +39,7 @@ function CardPayScreen({navigation}) {
   const handlePayPress = async () => {
     // Gather the customer's billing information (for example, email)
     const billingDetails = {
-      email: 'jenny.rosen@example.com',
+      email: email,
     };
 
     // Fetch the intent client secret from the backend
@@ -89,10 +102,18 @@ function CardPayScreen({navigation}) {
         onPress={() => {
           //   handlePayPress();
           if (complete) {
-            setOrdered(current => [...current, orders()]);
+            setOrdered(current => [orders(), ...current]);
+            AsyncStorage.setItem('ordered', JSON.stringify([orders(), ...ordered]));
             setAdded([]);
+            AsyncStorage.setItem('added', JSON.stringify([]));
             setData([]);
-            Alert.alert('Success', 'The payment was confirmed successfully.');
+            AsyncStorage.setItem('data', JSON.stringify([]));
+            Alert.alert('Success', 'The payment was confirmed successfully.', [
+              {
+                text: 'OK',
+                onPress: () => navigation.navigate('Orders'),
+              },
+            ]);
           } else {
             Alert.alert('Failed', 'Complete Card Details.');
           }

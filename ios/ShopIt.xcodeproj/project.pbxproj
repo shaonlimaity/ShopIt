@@ -494,8 +494,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = org.reactjs.native.example.ShopIt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.smaity.shopit;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.example.smaity.shopIt;
 				PRODUCT_NAME = ShopIt;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";

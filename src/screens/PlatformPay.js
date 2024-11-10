@@ -1,29 +1,47 @@
+/* eslint-disable no-unused-vars */
 import {
   PlatformPay,
   PlatformPayButton,
   StripeProvider,
   usePlatformPay,
 } from '@stripe/stripe-react-native';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Alert, StyleSheet, Text, View, Platform} from 'react-native';
 import {DataContext} from '../global/DataContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = Platform.OS === 'ios' ? 'http://localhost:4242' : 'http://10.0.2.2:4567';
+const API_URL =
+  Platform.OS === 'ios' ? 'http://localhost:4242' : 'http://10.0.2.2:4567';
 const PlatformPayScreen = ({navigation}) => {
-  const {data, added, setData, setAdded, setOrdered} = useContext(DataContext);
+  const {data, added, ordered, setData, setAdded, setOrdered} =
+    useContext(DataContext);
   const {
-    isPlatformPaySupported,
+    // isPlatformPaySupported,
+    // PaymentConfiguration,
     confirmPlatformPayPayment,
   } = usePlatformPay();
 
-  React.useEffect(() => {
-    (async function () {
-      if (!(await isPlatformPaySupported({googlePay: {testEnv: true}}))) {
-        Alert.alert('Google Pay is not supported.');
-        return;
-      }
+  // useEffect(() => {
+  //   PaymentConfiguration.init();
+  // },[PaymentConfiguration]);
+
+  useEffect(() => {
+    (async () => {
+      const data1 = (await AsyncStorage.getItem('data')) || '';
+      setData(JSON.parse(data1));
+      const added1 = (await AsyncStorage.getItem('added')) || '';
+      setAdded(JSON.parse(added1));
     })();
-  }, [isPlatformPaySupported]);
+  }, [setAdded, setData]);
+
+  // React.useEffect(() => {
+  //   (async function () {
+  //     if (!(await isPlatformPaySupported({googlePay: {testEnv: true}}))) {
+  //       Alert.alert('Google Pay is not supported.');
+  //       return;
+  //     }
+  //   })();
+  // }, [isPlatformPaySupported]);
 
   const fetchPaymentIntentClientSecret = async () => {
     // Fetch payment intent created on the server, see above
@@ -36,7 +54,7 @@ const PlatformPayScreen = ({navigation}) => {
         currency: 'usd',
       }),
     });
-    const { client_secret } = await response.json();
+    const {client_secret} = await response.json();
     return client_secret;
   };
 
@@ -44,30 +62,33 @@ const PlatformPayScreen = ({navigation}) => {
 
   const pay = async () => {
     const clientSecret = await fetchPaymentIntentClientSecret();
-    const { error } = await confirmPlatformPayPayment(
-      clientSecret,
-      {
-        googlePay: {
-          testEnv: true,
-          merchantName: 'My merchant name',
-          merchantCountryCode: 'US',
-          currencyCode: 'USD',
-          billingAddressConfig: {
-            format: PlatformPay.BillingAddressFormat.Full,
-            isPhoneNumberRequired: true,
-            isRequired: true,
-          },
+    const {error} = await confirmPlatformPayPayment(clientSecret, {
+      googlePay: {
+        testEnv: true,
+        merchantName: 'My merchant name',
+        merchantCountryCode: 'US',
+        currencyCode: 'USD',
+        billingAddressConfig: {
+          format: PlatformPay.BillingAddressFormat.Full,
+          isPhoneNumberRequired: true,
+          isRequired: true,
         },
-      }
-    );
+      },
+    });
     if (error) {
       Alert.alert(error.code, error.message); // actual code but as backend is not integrated it won't work
       console.log(error.code, error.message);
       // Update UI to prompt user to retry payment (and possibly another payment method)
       return;
     }
-    setOrdered(current => [...current, added]);
-    Alert.alert('Success', 'The payment was confirmed successfully.');
+    setOrdered(current => [added, ...current]);
+    AsyncStorage.setItem('ordered', JSON.stringify([orders(), ...ordered]));
+    // Alert.alert('Success', 'The payment was confirmed successfully.');
+    var r = Alert.confirm('Success', 'The payment was confirmed successfully.');
+    console.log(r);
+    if (r === true) {
+      navigation.navigate('Orders');
+    }
   };
 
   const checkCount = i => {
@@ -98,10 +119,21 @@ const PlatformPayScreen = ({navigation}) => {
           type={PlatformPay.ButtonType.AddMoney}
           onPress={() => {
             // pay();  // ********* actual payment code but isn't functional as backend not integrated ********* //
-            setOrdered(current => [...current, orders()]);
+            setOrdered(current => [orders(), ...current]);
+            AsyncStorage.setItem(
+              'ordered',
+              JSON.stringify([orders(), ...ordered]),
+            );
             setAdded([]);
+            AsyncStorage.setItem('added', JSON.stringify([]));
             setData([]);
-            Alert.alert('Success', 'The payment was confirmed successfully.');
+            AsyncStorage.setItem('data', JSON.stringify([]));
+            Alert.alert('Success', 'The payment was confirmed successfully.', [
+              {
+                text: 'OK',
+                onPress: () => navigation.navigate('Orders'),
+              },
+            ]);
           }}
           style={styles.button}
         />

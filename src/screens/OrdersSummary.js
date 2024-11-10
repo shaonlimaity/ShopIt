@@ -1,27 +1,25 @@
-import React, {useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-} from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useContext, useEffect} from 'react';
+import {View, Text, StyleSheet, ScrollView, Image} from 'react-native';
 import {DataContext} from '../global/DataContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 
-const OrdersSummary = ({navigation, route}) => {
-  const {ordered} = useContext(DataContext);
+const OrdersSummary = ({route}) => {
+  const {ordered, setOrdered} = useContext(DataContext);
+
+  useEffect(() => {
+    (async () => {
+      const order = (await AsyncStorage.getItem('ordered')) || '';
+      setOrdered(JSON.parse(order));
+    })();
+  }, [setOrdered]);
+
   var total;
   const {params} = route;
 
-  console.log(route.key);
-
   const totalPrice = () => {
-    // console.log(arr);
     total = 0;
-    // arr?.map(n => {
-    //     console.log(n);
-    // //   total += n?.product.price * n?.count;
-    // });
     params?.map(item => (total += item?.product?.price * item?.count));
     return Math.round(total * 100) / 100;
   };
@@ -30,8 +28,36 @@ const OrdersSummary = ({navigation, route}) => {
     let grand = (totalPrice(ordered) * 5) / 100 + totalPrice(ordered) + 5;
     return Math.round(grand * 100) / 100;
   };
+
+  console.log(
+    moment.duration(moment(new Date()).diff(params[0]?.date)).asMinutes(),
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
+      <View
+        style={styles.status}>
+        {moment.duration(moment(new Date()).diff(params[0]?.date)).asMinutes() >
+        10 ? (
+          <Text
+            style={styles.status}>
+            DELIVERED
+          </Text>
+        ) : (
+          <Text
+            style={styles.status}>
+            PROCESSING
+          </Text>
+        )}
+        <View>
+          <Text style={styles.dateTime}>
+            {moment(params[0]?.date).format('LL')}
+          </Text>
+          <Text style={styles.dateTime}>
+            {moment(params[0]?.date).fromNow()}{' '}
+          </Text>
+        </View>
+      </View>
       {params?.map(item => (
         <View style={styles.container}>
           <View style={styles.imageContainer}>
@@ -42,12 +68,16 @@ const OrdersSummary = ({navigation, route}) => {
             />
           </View>
           <View style={styles.infoContainer}>
-            <Text style={{fontSize: 15}} numberOfLines={2}>
+            <Text style={styles.desc} numberOfLines={2}>
               {item?.product?.description}
             </Text>
             <View style={styles.priceInfo}>
-                <Text style={styles.price}>{`$ ${item?.product?.price}`} x {`${item?.count}`}</Text>
-                <Text style={styles.price}>$ {item?.product?.price * item?.count}</Text>
+              <Text style={styles.price}>
+                {`$ ${item?.product?.price}`} x {`${item?.count}`}
+              </Text>
+              <Text style={styles.price}>
+                $ {item?.product?.price * item?.count}
+              </Text>
             </View>
           </View>
         </View>
@@ -67,12 +97,8 @@ const OrdersSummary = ({navigation, route}) => {
           <Text style={styles.summary}>$ 5</Text>
         </View>
         <View style={styles.summaryContainer}>
-          <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold'}]}>
-            Grand Total
-          </Text>
-          <Text style={[styles.summary, {fontSize: 16, fontWeight: 'bold', color: 'green'}]}>
-            ${grandTotal()}
-          </Text>
+          <Text style={styles.grandTotalText}>Grand Total</Text>
+          <Text style={styles.grandTotal}>${grandTotal()}</Text>
         </View>
       </View>
     </ScrollView>
@@ -84,7 +110,7 @@ export default OrdersSummary;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    width: '90%',
+    width: '100%',
     height: 100,
     marginVertical: 5,
     borderWidth: 0.1,
@@ -94,8 +120,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   contentContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 10,
     marginTop: 20,
   },
   infoContainer: {
@@ -129,7 +154,7 @@ const styles = StyleSheet.create({
   },
   image: {width: 90, height: 80, borderRadius: 15},
   orderContainer: {
-    width: '90%',
+    width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     alignSelf: 'center',
@@ -145,14 +170,14 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: '#FBB500',
     fontWeight: 'bold',
-    margin: 10,
+    marginVertical: 10,
+    marginHorizontal: 2,
   },
   summaryContainer: {
-    width: 300,
+    width: '95%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginHorizontal: 5,
   },
   summary: {
     fontSize: 14,
@@ -169,5 +194,28 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  grandTotalText: {
+    margin: 5,
+    marginRight: -10,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  grandTotal: {
+    margin: 5,
+    marginRight: -10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'green',
+  },
+  desc: {fontSize: 15},
+  dateTime: {textAlign: 'right', color: '#555', fontWeight: '500', marginRight: 4},
+  status: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'green',
+    marginHorizontal: 5,
   },
 });

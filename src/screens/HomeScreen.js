@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useContext, useState} from 'react';
 import {
   View,
@@ -11,16 +12,29 @@ import {
 import ItemCards from '../components/ItemCards';
 import {DataContext} from '../global/DataContext';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({navigation, route}) => {
-  const {data, setData, added} = useContext(DataContext);
+  const {data, setData, added, setAdded} = useContext(DataContext);
   const [input, setInput] = useState(null);
   const [search, setSearch] = useState([]);
 
   useEffect(() => {
+    (async () => {
+      const data1 = (await AsyncStorage.getItem('data')) || '';
+      setData(JSON.parse(data1));
+      const added1 = (await AsyncStorage.getItem('added')) || '';
+      setAdded(JSON.parse(added1));
+    })();
+  }, [setData, setAdded]);
+
+  useEffect(() => {
     fetch('https://dummyjson.com/products/category/groceries')
       .then(res => res.json())
-      .then(response => setData(response?.products));
+      .then(response => {
+        setData(response?.products);
+        AsyncStorage.setItem('data', JSON.stringify(response?.products));
+      });
   }, [added, data, setData]);
 
   const renderItem = ({item}) => {
@@ -54,11 +68,7 @@ const HomeScreen = ({navigation, route}) => {
             placeholder={'Search for a specific item'}
             onChangeText={text => {
               setInput(text);
-              setSearch(
-                data.filter(
-                  i => i.title.includes(text.toLowerCase()),
-                ),
-              );
+              setSearch(data.filter(i => i.title.includes(text.toLowerCase())));
             }}
             value={input}
           />

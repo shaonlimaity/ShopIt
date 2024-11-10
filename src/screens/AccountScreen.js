@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
     Alert,
   Keyboard,
@@ -10,9 +10,23 @@ import {
 import {View, Text, StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {DataContext} from '../global/DataContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AccountScreen = ({navigation}) => {
-  const {name, email, phone} = useContext(DataContext);
+  const {name, setName, email, setEmail, phone, setPhone} = useContext(DataContext);
+
+  useEffect(() => {
+    (async () => {
+      const names = (await AsyncStorage.getItem('name')) || '';
+      setName(JSON.parse(names));
+      const emails = (await AsyncStorage.getItem('email')) || '';
+      setEmail(JSON.parse(emails));
+      const phones = (await AsyncStorage.getItem('phone')) || '';
+      setPhone(JSON.parse(phones));
+    })();
+  }, [setEmail, setName, setPhone]);
+
+
   return (
     <TouchableWithoutFeedback
       onPress={() => Keyboard.dismiss()}>

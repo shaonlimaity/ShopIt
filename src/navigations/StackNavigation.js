@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
 import HomeScreen from '../screens/HomeScreen';
 import {NavigationContainer} from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -23,6 +23,12 @@ function StackNavigator({}) {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Tabs"
+        screenOptions={{
+          headerTitleAlign: 'center',
+          headerStyle: {
+            height: Platform.OS !== 'ios' ? 70 : 120,
+          },
+        }}
       >
         <Stack.Screen
           name="Home"

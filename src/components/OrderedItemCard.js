@@ -1,4 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
+import moment from 'moment';
 import React from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {ScrollView} from 'react-native';
@@ -6,69 +7,80 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const OrderedItemCard = ({ordered, navigation}) => {
   return (
-    <>
-      {ordered?.map(item => (
-        <View style={styles.container}>
-          <ScrollView
-            horizontal
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{height: 120}}>
-            {item?.map(orders => (
-              <>
-                {/* <Text>{orders?.date}</Text> */}
-                <View style={{justifyContent: 'center', paddingHorizontal: 5}}>
-                  <View style={styles.imageContainer}>
-                    <Image
-                      source={{uri: orders?.product?.thumbnail}}
-                      style={styles.image}
-                      resizeMode="contain"
-                    />
-                  </View>
-                  <View style={styles.number}>
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                      }}>
-                      {orders?.count}
-                    </Text>
-                  </View>
+    <View style={styles.orderContainer}>
+      <View style={styles.statusContainer}>
+        {moment
+          .duration(moment(new Date()).diff(ordered[0]?.date))
+          .asMinutes() > 10 ? (
+          <Text style={styles.status}>DELIVERED</Text>
+        ) : (
+          <Text style={styles.status}>PROCESSING</Text>
+        )}
+        <View>
+          <Text>{moment(ordered[0]?.date).format('LL')}</Text>
+          <Text style={{textAlign: 'right'}}>
+            {moment(ordered[0]?.date).fromNow()}{' '}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.container}>
+        <ScrollView
+          horizontal
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{height: 120}}>
+          {ordered?.map(orders => (
+            <>
+              <View style={{justifyContent: 'center', paddingHorizontal: 5}}>
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={{uri: orders?.product?.thumbnail}}
+                    style={styles.image}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.number}>
                   <Text
-                    style={{fontSize: 12, textAlign: 'center', bottom: 7}}
-                    numberOfLines={1}>
-                    {orders?.product?.title}
+                    style={styles.count}>
+                    {orders?.count}
                   </Text>
                 </View>
-              </>
-            ))}
-          </ScrollView>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('OrdersSummary', item)}
-            style={{
-              justifyContent: 'center',
-              paddingHorizontal: 3,
-              backgroundColor: '#FFA500',
-              borderTopRightRadius: 10,
-              borderBottomRightRadius: 10,
-            }}>
-            <Ionicons name={'chevron-forward'} size={25} />
-          </TouchableOpacity>
-        </View>
-      ))}
-    </>
+                <Text style={styles.title} numberOfLines={1}>
+                  {orders?.product?.title}
+                </Text>
+              </View>
+            </>
+          ))}
+        </ScrollView>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('OrdersSummary', ordered)}
+          style={styles.icon}>
+          <Ionicons name={'chevron-forward'} size={25} />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 export default OrderedItemCard;
 
 const styles = StyleSheet.create({
+  orderContainer: {
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
   container: {
     flexDirection: 'row',
     width: '95%',
-    marginVertical: 10,
-    borderWidth: 0.3,
     borderRadius: 10,
     backgroundColor: '#fffdee',
     paddingLeft: 5,
@@ -124,5 +136,31 @@ const styles = StyleSheet.create({
     left: 5,
     zIndex: 20,
     backgroundColor: 'white',
+  },
+  status: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'green',
+    marginLeft: -5,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    margin: 5,
+  },
+  icon: {
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    backgroundColor: '#FFA500',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  title: {fontSize: 12, textAlign: 'center', bottom: 7},
+  count: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

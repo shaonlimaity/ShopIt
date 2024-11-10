@@ -1,31 +1,40 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import {View, Text, StyleSheet, ScrollView, TouchableOpacity} from 'react-native';
 import { DataContext } from '../global/DataContext';
 import CheckoutItemCards from '../components/CheckoutItemCard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CheckoutScreen = ({navigation}) =>{
-    const {added} = useContext(DataContext);
-    return (
+  const {added, setAdded} = useContext(DataContext);
+
+  useEffect(() => {
+    (async () => {
+      const added1 = (await AsyncStorage.getItem('added')) || '';
+      setAdded(JSON.parse(added1));
+    })();
+  }, [setAdded]);
+
+  return (
+    <>
+      {added?.length === 0 ? (
+        <View style={styles.noDataContainer}>
+          <Text>Add items from list of products</Text>
+        </View>
+      ) : (
         <>
-          {added?.length === 0 ? (
-            <View style={styles.noDataContainer}>
-              <Text>Add items from list of products</Text>
-            </View>
-          ) : (
-            <>
-              <ScrollView contentContainerStyle={styles.container}>
-                <Text style={styles.checkout}>Order Summary</Text>
-                <CheckoutItemCards />
-              </ScrollView>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Payment')}>
-                  <Text style={styles.buttonText}>{'Proceed To Payment'}</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+          <ScrollView contentContainerStyle={styles.container}>
+            <Text style={styles.checkout}>Order Summary</Text>
+            <CheckoutItemCards added={added} setAdded={setAdded} />
+          </ScrollView>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Payment')}>
+              <Text style={styles.buttonText}>{'Proceed To Payment'}</Text>
+            </TouchableOpacity>
+          </View>
         </>
-    );
+      )}
+    </>
+  );
 };
 
 export default CheckoutScreen;
